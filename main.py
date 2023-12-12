@@ -1,16 +1,11 @@
 import re
-import matplotlib.dates as mdates
+
 import matplotlib
 import numpy as np
 
 matplotlib.use('Agg')
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-from datetime import datetime
 
 import requests
-from pprint import pprint
 import plotly.express as px
 import pandas as pd
 
@@ -48,68 +43,6 @@ def fetch_artwork_details(object_id):
     else:
         return None
 
-
-def visualize_data(artworks):
-    fig = px.scatter(artworks, x="year", y="region", hover_data=["title", "artist"])
-    fig.update_layout(title="Medieval Artworks at The Met by Year and Region")
-    fig.show()
-
-
-def extract_year(date_str):
-    if pd.isna(date_str):
-        return None
-    # Handling 'mid-', 'early ', or 'late ' prefixes
-    if 'mid-' in date_str:
-        century = int(re.search(r'\d+', date_str).group())
-        return (century - 1) * 100 + 50  # Approximating 'mid-' as the middle of the century
-    elif 'early ' in date_str:
-        century = int(re.search(r'\d+', date_str).group())
-        return (century - 1) * 100  # Approximating 'early' as the start of the century
-    elif 'late ' in date_str:
-        century = int(re.search(r'\d+', date_str).group())
-        return (century - 1) * 100 + 75  # Approximating 'late' as the last quarter of the century
-
-    elif 'century' in date_str:
-        if "first" in date_str:
-            century = int(re.search(r'\d+', date_str).group())
-            return (century - 1) * 100  # First half of the century
-        elif "second" in date_str:
-            century = int(re.search(r'\d+', date_str).group())
-            return (century - 1) * 100 + 50  # Second half of the century
-        else:
-            century = int(re.search(r'\d+', date_str).group())
-            return (century - 1) * 100
-
-    # Handling date ranges
-    elif '�' in date_str or '-' in date_str:
-        return int(re.search(r'\d{4}', date_str).group())
-
-    # Handling direct year values
-    else:
-        try:
-            return int(re.search(r'\d{4}', date_str).group())
-        except:
-            return None
-
-
-# medieval_art['year'] = medieval_art['Object Date'].apply(extract_year)
-
-# import plotly.express as px
-#
-# # Assuming df has 'start_year' and 'end_year' columns
-# fig = px.timeline(df, x_start="start_year", x_end="end_year", y="Culture", color="Culture")
-# fig.update_layout(title="Date Ranges of Medieval Artworks at The Met by Culture")
-# fig.show()
-
-
-# art_df['Object Date'] = art_df['Object Date'].str.replace('�', '-')
-
-# filtered_art = art_df[art_df["year"] < 2000]
-# grouped_data = filtered_art.groupby(['year', 'Culture']).size().reset_index(name='counts')
-# # Creating the scatter plot
-# fig = px.scatter(grouped_data, x='year', y='counts', color='Culture',
-#                  title='Medieval Artworks at The Met by Year and Culture')
-# fig.show()
 
 def contains_integer(input_string):
     integer_pattern = r'\d+'
@@ -215,78 +148,17 @@ def parse_date_range(date_range):
         pass
 
 
-date_ranges_example = ["580–640", "11th–12th century or modern", "4th–7th century", "1534–49"]
-
-art_df = art_df[art_df["Object Date"].notna()]
-parsed_ranges = [parse_date_range(dr) for dr in art_df["Object Date"].astype(str)]
-
-starts, ends = zip(*parsed_ranges)
-events = ["Event {}".format(i+1) for i in range(len(parsed_ranges))]
-
-art_df['Start Year'], art_df['End Year'] = zip(*parsed_ranges)
-
-# plt.figure(figsize=(10, 8))
-# for i, (start, end) in enumerate(parsed_ranges):
-#     plt.plot([start, end], [i, i], color='tab:blue', marker='|', markersize=10)
-#
-# # Improve the formatting
-# plt.yticks(range(len(events)), events)
-# plt.xlabel("Year")
-# plt.title("Timeline of Date Ranges")
-# plt.grid(True)
-#
-# # Show the plot
-# plt.show()
-
-
-# parsed_ranges = [
-#     (1820, 1840),
-#     (1830, 1900),
-#     (2018, 2023)
-# ]
-#
-# events = [
-#     "Event A",
-#     "Event B",
-#     "Event C"
-# ]
-
-
-# # Create a figure using Plotly Express
-# fig = go.Figure()
-#
-# for i, (start, end) in enumerate(parsed_ranges):
-#     fig.add_trace(go.Scatter(
-#         x=[start, end],
-#         y=[i, i],
-#         mode='lines+markers',
-#         name=f'Event {i+1}',
-#         marker=dict(color='blue', size=10),
-#         line=dict(width=4)
-#     ))
-#
-# # Update layout
-# fig.update_layout(
-#     title='Timeline of Date Ranges',
-#     xaxis_title='Year',
-#     yaxis_title='Events',
-#     yaxis=dict(
-#         tickmode='array',
-#         tickvals=list(range(len(events))),
-#         ticktext=events
-#     ),
-#     showlegend=False
-# )
-#
-# # Show the figure
-# fig.show()
-
-
 def normalize_year(year):
     if isinstance(year, tuple):
         return year[0]  # Assuming the first element of the tuple is the start year
     return year
 
+
+art_df = art_df[art_df["Object Date"].notna()]
+parsed_ranges = [parse_date_range(dr) for dr in art_df["Object Date"].astype(str)]
+starts, ends = zip(*parsed_ranges)
+
+art_df['Start Year'], art_df['End Year'] = zip(*parsed_ranges)
 
 # Normalize years
 art_df['Start Year'] = art_df['Start Year'].apply(normalize_year)
@@ -299,30 +171,51 @@ heatmap_data = np.zeros(year_max - year_min + 1)
 
 new_df = art_df.head(50)
 
-filtered_df = art_df[(art_df['Start Year'] >= 200) & (art_df['Start Year'] <= 2000)]
-filtered_df = filtered_df[(filtered_df['End Year'] >= 200) & (filtered_df['End Year'] <= 2000)]
+df = art_df[(art_df['Start Year'] >= 200) & (art_df['Start Year'] <= 2000)]
+df = df[(df['End Year'] >= 200) & (df['End Year'] <= 2000)]
 
 
-for _, row in new_df.iterrows():
-    start, end = int(row['Start Year']), int(row['End Year'])
-    for year in range(start, end + 1):
-        heatmap_data[year - year_min] += 1
+# Assuming you have your dataset in a pandas DataFrame called 'df'
+start_years = df['Start Year']
+end_years = df['End Year']
+mediums = df['Medium']
+cultures = df['Culture']
 
-# Create heatmap
-fig = go.Figure(data=go.Heatmap(
-    z=[heatmap_data],
-    x=list(range(year_min, year_max + 1)),
-    y=['Art Objects'],
-    colorscale='Viridis'
-))
+# Create a figure with four subplots
+fig, ((ax3, ax4), (ax1, ax2)) = plt.subplots(2, 2, figsize=(12, 15))
 
-# Update layout
-fig.update_layout(
-    title='Density of Art Objects Over Time',
-    xaxis_title='Year',
-    yaxis_title='Object Count',
-)
+# Plot the Start Year histogram
+ax1.hist(start_years, bins=20, edgecolor='k')
+ax1.set_title('Distribution of Start Years')
+ax1.set_xlabel('Start Year')
+ax1.set_ylabel('Frequency')
+ax1.grid(axis='y', alpha=0.75)
 
-fig.show()
+# Plot the End Year histogram
+ax2.hist(end_years, bins=20, edgecolor='k', color='orange')  # You can adjust the number of bins as needed
+ax2.set_title('Distribution of End Years')
+ax2.set_xlabel('End Year')
+ax2.set_ylabel('Frequency')
+ax2.grid(axis='y', alpha=0.75)
 
+# Plot the Medium bar chart
+medium_counts = mediums.value_counts().head(10)  # You can adjust the number of categories to display
+medium_counts.plot(kind='bar', ax=ax3)
+ax3.set_title('Top 10 Mediums')
+ax3.set_xlabel('Medium')
+ax3.set_ylabel('Count')
+ax3.grid(axis='y', alpha=0.75)
+
+# Plot the Culture bar chart
+culture_counts = cultures.value_counts().head(10)  # You can adjust the number of categories to display
+culture_counts.plot(kind='bar', ax=ax4)
+ax4.set_title('Top 10 Cultures')
+ax4.set_xlabel('Culture')
+ax4.set_ylabel('Count')
+ax4.grid(axis='y', alpha=0.75)
+
+plt.subplots_adjust(hspace=0.9)
+
+# Save the plot to a file
+plt.savefig('year_medium_culture_visualization.png')
 
