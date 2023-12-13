@@ -44,8 +44,8 @@ art_data['End Year'] = art_data['End Year'].apply(lambda x: normalize_year(x, in
 # ----------------------------------------- Filtering -----------------------------------------
 # df = art_data
 
-df = art_data[(art_data['Start Year'] >= 0) & (art_data['Start Year'] <= 20000)]
-df = df[(df['End Year'] >= 0) & (df['End Year'] <= 2000)]
+df = art_data[(art_data['Start Year'] >= 300) & (art_data['Start Year'] <= 1700)]
+df = df[(df['End Year'] >= 300) & (df['End Year'] <= 1700)]
 
 
 start_years = df['Start Year']
@@ -91,7 +91,7 @@ ax4.grid(axis='y', alpha=0.75)
 plt.subplots_adjust(hspace=0.9)
 
 # Save the plot to a file
-plt.savefig('graphs/years_medium_culture_visualization_unfiltered.png')
+plt.savefig('graphs/years_medium_culture_visualization_300_1700.png')
 
 
 # ----------------------------------------- Analysis -----------------------------------------

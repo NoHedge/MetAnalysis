@@ -50,4 +50,6 @@ Basic analysis is performed on the dataset:
 This project provides a starting point for exploring the Metropolitan Museum of Art's medieval art collection, enabling further research and analysis based on the cleaned and visualized data.
 
 
+![Unfiltered](graphs/years_medium_culture_visualization_unfiltered.png)
+![300CE - 1700CE](graphs/years_medium_culture_visualization_300_1700.png)
 
