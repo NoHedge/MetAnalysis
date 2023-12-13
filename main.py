@@ -10,8 +10,8 @@ from functions import parse_date_range, normalize_year
 
 matplotlib.use('Agg')
 
-pd.set_option('display.min_rows', 100)
-pd.set_option('display.max_rows', 150)
+pd.set_option('display.min_rows', 600)
+pd.set_option('display.max_rows', 900)
 pd.set_option('display.max_columns', 13)
 pd.set_option('display.width', 2000)
 
@@ -24,27 +24,29 @@ met_data = pd.read_csv("meta_data/met.csv")
 medieval_art = met_data[met_data['Department'] == 'Medieval Art'].copy()
 medieval_art['Object Begin Date'] = pd.to_numeric(medieval_art['Object Begin Date'], errors='coerce')
 medieval_art = medieval_art[columns_to_keep]
-art_df = medieval_art.copy()
+art_data = medieval_art.copy()
 
-print(art_df)
-print(art_df["Object Date"])
+print(art_data)
 
-art_df = art_df[art_df["Object Date"].notna()]
+art_data = art_data[art_data["Object Date"].notna()]
 
 # Parse dates
-parsed_ranges = [parse_date_range(dr) for dr in art_df["Object Date"].astype(str)]
+parsed_ranges = [parse_date_range(dr) for dr in art_data["Object Date"].astype(str)]
 starts, ends = zip(*parsed_ranges)
 
-art_df['Start Year'], art_df['End Year'] = zip(*parsed_ranges)
+art_data['Start Year'], art_data['End Year'] = zip(*parsed_ranges)
 
 # Normalize years
-art_df['Start Year'] = art_df['Start Year'].apply(normalize_year)
-art_df['End Year'] = art_df['End Year'].apply(normalize_year)
+art_data['Start Year'] = art_data['Start Year'].apply(lambda x: normalize_year(x, index=0))
+art_data['End Year'] = art_data['End Year'].apply(lambda x: normalize_year(x, index=1))
 
 
 # ----------------------------------------- Filtering -----------------------------------------
-df = art_df[(art_df['Start Year'] >= 350) & (art_df['Start Year'] <= 2000)]
-df = df[(df['End Year'] >= 200) & (df['End Year'] <= 2000)]
+# df = art_data
+
+df = art_data[(art_data['Start Year'] >= 0) & (art_data['Start Year'] <= 20000)]
+df = df[(df['End Year'] >= 0) & (df['End Year'] <= 2000)]
+
 
 start_years = df['Start Year']
 end_years = df['End Year']
@@ -89,5 +91,37 @@ ax4.grid(axis='y', alpha=0.75)
 plt.subplots_adjust(hspace=0.9)
 
 # Save the plot to a file
-plt.savefig('graphs/year_medium_culture_visualization_200CE.png')
+plt.savefig('graphs/years_medium_culture_visualization_unfiltered.png')
 
+
+# ----------------------------------------- Analysis -----------------------------------------
+# print(art_data[["Object Date", "Start Year", "End Year"]])
+print(art_data.head(5))
+
+# Print the first 5 rows
+print("First 5 rows of art_data:")
+print(art_data.head(5))
+
+# Print the columns "Object Date", "Start Year", and "End Year"
+print("Columns 'Object Date', 'Start Year', 'End Year' of art_data:")
+print(art_data[["Object Date", "Start Year", "End Year"]])
+
+# Print the unique values in the "Medium" column
+print("Unique values in the 'Medium' column:")
+print(art_data["Medium"].unique())
+
+# Print the unique values in the "Culture" column
+print("Unique values in the 'Culture' column:")
+unique_culture_values = art_data["Culture"].unique()
+print(unique_culture_values)
+print(f"\n{len(unique_culture_values)} different cultures with medieval art at the Met.\n\n")
+
+# Top 10 most frequent cultures
+culture_counts = art_data['Culture'].value_counts().head(10)
+print("Top 10 most frequent cultures:")
+print(culture_counts)
+
+# Top 10 most frequent mediums
+medium_counts = art_data['Medium'].value_counts().head(10)
+print("\nTop 10 most frequent mediums:")
+print(medium_counts)
