@@ -51,5 +51,6 @@ This project provides a starting point for exploring the Metropolitan Museum of 
 
 
 ![Unfiltered](graphs/years_medium_culture_visualization_unfiltered.png)
+
 ![300CE - 1700CE](graphs/years_medium_culture_visualization_300_1700.png)
 
